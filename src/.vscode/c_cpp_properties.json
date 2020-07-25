@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/ini/Téléchargements/arduino-1.8.12-linux64/arduino-1.8.12/tools/**",
+                "/home/ini/Téléchargements/arduino-1.8.12-linux64/arduino-1.8.12/hardware/arduino/avr/**",
+                "/home/ini/Téléchargements/arduino-1.8.12-linux64/arduino-1.8.12/hardware/tools/**",
+                "/home/ini/Arduino/hardware/arduino/avr/**",
+                "/home/ini/Arduino/tools/**",
+                "/home/ini/Arduino/libraries/**",
+                "/home/ini/make/Espace/espace/*"
+            ],
+            "forcedInclude": [
+                "/home/ini/Téléchargements/arduino-1.8.12-linux64/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Arduino.h",
+                "/home/ini/Arduino/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/clang-6.0",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "defines": [
+                "USBCON"
+            ]
+        }
+    ],
+    "version": 4
+}
