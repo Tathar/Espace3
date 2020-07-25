@@ -104,7 +104,7 @@
 
 //PK7
 #define PIN_ALIM_SW A15
-
+/*
 //PF0
 #define PIN_A0 54
 //PF1
@@ -121,5 +121,5 @@
 #define PIN_A6 60
 //PF7
 #define PIN_A7 61
-
+*/
 #endif

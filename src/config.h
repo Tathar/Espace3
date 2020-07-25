@@ -149,11 +149,11 @@
 #define PIN_RC_O_4 PIN_PCB_RELAY_6  //logique inversé 38
 
 //entree resistance chauffante
-
+/*
 #define PIN_RC_I_1 7  //logique inversé Beige
 #define PIN_RC_I_23 6 //logique inversé Noir
 #define PIN_RC_I_4 5  //logique inversé Violet
-
+*/
 #define RC_OFF 0
 #define RC_1 1
 #define RC_23 2
