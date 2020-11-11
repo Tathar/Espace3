@@ -6,8 +6,6 @@
 #include "config.h"
 #include <CLI.h>
 
-
-
 //gestion de la commande au volant
 //la methode setup() doit etre appele dans la fonction d initialisation
 //la methode  loop() doit etre appele dans chaque iteration de le fonction loop()

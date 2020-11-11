@@ -45,12 +45,12 @@
 // A2 => B3 Molette Cran 2
 // A2 => A1 Molette Cran 3
 
-#define CV_A1 PIN_CV_A1 // input = Vol + / Molette 3
-#define CV_A2 PIN_CV_A2 // Output =  Molette 1 2 3
-#define CV_A3 PIN_CV_A3 // input = Btn bas / Btn Haut Droite / molette 1
-#define CV_B1 PIN_CV_B1 // Output = Btn bas / vol + / Vol +
-#define CV_B2 PIN_CV_B2 // Output = Btn Haut droite / Btn haut gauche
-#define CV_B3 PIN_CV_B3 // input = Vol + / Molette 3
+#define CV_A1 PIN_CV_A1 // input = Vol + / Molette 3                        A1
+#define CV_A2 PIN_CV_A2 // Output =  Molette 1 2 3                          B3
+#define CV_A3 PIN_CV_A3 // input = Btn bas / Btn Haut Droite / molette 1    A3
+#define CV_B1 PIN_CV_B1 // Output = Btn bas / vol + / Vol +                 B1
+#define CV_B2 PIN_CV_B2 // Output = Btn Haut droite / Btn haut gauche       B2
+#define CV_B3 PIN_CV_B3 // input = Vol + / Molette 3                        A2
 
 #define NONE 0
 #define CV_BTN_DOWN 1
@@ -73,7 +73,7 @@
 // pin 26: relais Tip
 // pin 28: relais Ring
 
-#define AR_TIP PIN_PCB_RELAY_POT_2 //logique inversé
+#define AR_TIP PIN_PCB_RELAY_POT_1 //logique inversé
 #define AR_RING PIN_PCB_RELAY_1    //logique inversé pin26
 
 // source / 2 sec = off => 1.2
@@ -117,10 +117,10 @@
 // pin 38: relais ouverture retro
 // pin 37: relais fermeture retro
 
-#define PIN_RV_OPEN 23
-#define PIN_RV_CLOSE 25
-#define PIN_RELAI_3 27 //inutilisé
-#define PIN_RELAI_4 29 //inutilisé
+#define PIN_RV_OPEN PIN_RELAY_1
+#define PIN_RV_CLOSE PIN_RELAY_2
+#define PIN_RELAI_3 PIN_RELAY_3 //inutilisé
+#define PIN_RELAI_4 PIN_RELAY_4 //inutilisé
 
 #define RV_TIME 3000 //temp d ouverture et fermeture du retroviseur en ms
 
@@ -128,8 +128,8 @@
 // pin 3 (PWM)
 // pin 30 relais alime servo
 
-#define PIN_TRAP_PWM PIN_PWM_SRV_1  //3
-#define PIN_TRAP_ALIM PIN_PWR_SRV_1 //30
+#define PIN_TRAP_PWM PIN_PWM_SRV_1    //3
+#define PIN_TRAP_ALIM PIN_PCB_RELAY_6 //PIN_PWR_SRV_1 //30
 
 #define TRAP_STOP 48
 #define TRAP_SPEED 12

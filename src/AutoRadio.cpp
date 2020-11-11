@@ -15,10 +15,10 @@ AutoRadio::AutoRadio(CLI &cli) : CLI_Command(cli,
 void AutoRadio::setup()
 {
     //audio
-    pinMode(AR_TIP, OUTPUT);     // set pin to output
-    pinMode(AR_RING, OUTPUT);    // set pin to output
-    digitalWrite(AR_TIP, HIGH);  //logique inverse
-    digitalWrite(AR_RING, HIGH); //logique inverse
+    pinMode(AR_TIP, OUTPUT);    // set pin to output
+    pinMode(AR_RING, OUTPUT);   // set pin to output
+    digitalWrite(AR_TIP, LOW);  //logique inverse
+    digitalWrite(AR_RING, LOW); //logique inverse
 
     //relais marche arriere et frein de parc
     pinMode(PIN_AR_FP, OUTPUT);    // set pin to output
@@ -31,8 +31,8 @@ void AutoRadio::loop()
 {
     if (this->_timer.front())
     {
-        digitalWrite(AR_TIP, HIGH);
-        digitalWrite(AR_RING, HIGH);
+        digitalWrite(AR_TIP, LOW);
+        digitalWrite(AR_RING, LOW);
         if (_debug == 1)
         {
             Serial.print(F("None time = "));
@@ -54,10 +54,10 @@ void AutoRadio::set_audio(int val)
         // else
         if (val < AR_NEED_RING && val != NONE)
         {
-            digitalWrite(AR_TIP, HIGH);
-            digitalWrite(AR_RING, HIGH);
-            set_pot(val);
             digitalWrite(AR_TIP, LOW);
+            digitalWrite(AR_RING, LOW);
+            set_pot(val);
+            digitalWrite(AR_TIP, HIGH);
             this->_timer.reset();
             this->_timer.start(100);
             if (_debug == 1)
@@ -68,11 +68,11 @@ void AutoRadio::set_audio(int val)
         }
         else if (val >= AR_NEED_RING && val != NONE)
         {
-            digitalWrite(AR_TIP, HIGH);
-            digitalWrite(AR_RING, HIGH);
-            set_pot(val - AR_NEED_RING);
             digitalWrite(AR_TIP, LOW);
             digitalWrite(AR_RING, LOW);
+            set_pot(val - AR_NEED_RING);
+            digitalWrite(AR_TIP, HIGH);
+            digitalWrite(AR_RING, HIGH);
 
             this->_timer.reset();
             this->_timer.start(100);

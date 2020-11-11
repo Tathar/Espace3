@@ -27,7 +27,7 @@ static void MCP2515_ISR()
   Flag_Recv = 1;
 }
 
-class CAN_ESPACE : CLI_Command
+class CAN_ESPACE : public CLI_Command
 {
 
 private:
@@ -76,7 +76,7 @@ public:
     pinMode(PIN_CB_DATA, INPUT);
     Serial.println(F("CAN BUS init !"));
     int loop = 0;
-    while (loop <= 5)
+    while (loop <= 10)
     {
       Serial.println(F("CAN BUS init !"));
       if (CAN_OK == can.begin(CAN_250KBPS, MCP_8MHz))
@@ -337,6 +337,11 @@ void setup()
   resistance.setup(); //initialisation des resistance chauffante
   canbus.setup();
   trape.setup();
+
+  pinMode(PIN_RELAY_3, OUTPUT); // set pin to output
+  pinMode(PIN_RELAY_4, OUTPUT); // set pin to output
+  digitalWrite(PIN_RELAY_3, LOW);
+  digitalWrite(PIN_RELAY_4, LOW);
 }
 
 void loop()
@@ -364,6 +369,7 @@ void loop()
   //gestion retroviseur
 
   // static TtFront front_verou_tel(canbus.get_verou_tel());
+
   if ((canbus.get_verou_tel() && canbus.get_verou()) && !(canbus.get_contact()))
     retro.close();
   else if (!(canbus.get_verou_tel() && canbus.get_verou()) || canbus.get_contact())
@@ -378,10 +384,10 @@ void loop()
 
   //gestion Batterie auxiliaire
 
-  if (canbus.get_contact() && canbus.get_regime() > 500)
-  {
-    //resistance.set(resistance.get());
-    resistance.set(RC_ALL);
-  }
+  //if (canbus.get_contact() && canbus.get_regime() > 500)
+  //{
+  //resistance.set(resistance.get());
+  //resistance.set(RC_ALL);
+  //}
   // Serial.println(resistance.get());
 }
