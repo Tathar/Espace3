@@ -207,6 +207,18 @@ void NeoTimer::start(unsigned long times = NEOTIMER_INDEFINITE)
 }
 
 /*
+ * Restart a timer
+ */
+void NeoTimer::restart(unsigned long times = NEOTIMER_INDEFINITE)
+{
+    if (times != NEOTIMER_INDEFINITE)
+        this->set(times);
+    this->reset();
+    this->_timer.started = true;
+    this->_timer.start = millis();
+}
+
+/*
  * Stops a timer
  */
 long NeoTimer::stop()

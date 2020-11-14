@@ -114,11 +114,12 @@
 #define PIN_AR_FP PIN_PCB_RELAY_3 //logique inversé
 
 //retroviseur
-// pin 38: relais ouverture retro
-// pin 37: relais fermeture retro
-
 #define PIN_RV_OPEN PIN_RELAY_1
 #define PIN_RV_CLOSE PIN_RELAY_2
+#define PIN_AMPEREMETRE A15
+#define AMPEREMETRE_I_MAX A15
+#define RETRO_I_STOP 1
+
 #define PIN_RELAI_3 PIN_RELAY_3 //inutilisé
 #define PIN_RELAI_4 PIN_RELAY_4 //inutilisé
 
@@ -144,9 +145,9 @@
 // pin 40 : relais
 // pin 42 : relais
 
-#define PIN_RC_O_1 PIN_PCB_RELAY_4  //logique inversé 42
-#define PIN_RC_O_23 PIN_PCB_RELAY_5 //logique inversé 40
-#define PIN_RC_O_4 PIN_PCB_RELAY_6  //logique inversé 38
+//#define PIN_RC_O_1 PIN_PCB_RELAY_4  //logique inversé 42
+//#define PIN_RC_O_23 PIN_PCB_RELAY_5 //logique inversé 40
+//#define PIN_RC_O_4 PIN_PCB_RELAY_6  //logique inversé 38
 
 //entree resistance chauffante
 /*

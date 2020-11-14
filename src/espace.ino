@@ -8,15 +8,30 @@
 #include "cav.h"
 #include "AutoRadio.h"
 #include "Retroviseur.h"
-#include "Resistance.h"
+//#include "Resistance.h"
 #include "Trape.h"
 
 #include "debounce.h"
 #include "TtFront.h"
 
+#include <avr/sleep.h> //this AVR library contains the methods that controls the sleep modes
+
 #define IF_MASK(value, mask) ((value & mask) == value)
 
-volatile int Flag_Recv;
+inline bool sleep_pin(int pin)
+{
+  int ret = digitalRead(pin);
+  pinMode(pin, INPUT);
+  return ret;
+}
+
+inline void wakeup_pin(int pin, bool old)
+{
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, old);
+}
+
+volatile int Flag_Recv = 1;
 /* 
      *  ISR CAN (Routine de Service d'Interruption)
      *  le flag IRQ monte quand au moins un message est reçu
@@ -24,7 +39,55 @@ volatile int Flag_Recv;
      */
 static void MCP2515_ISR()
 {
+  //Serial.println("MCP2515_ISR interupt");
   Flag_Recv = 1;
+  //sleep_disable();
+}
+
+static void WAKE_UP()
+{
+  sleep_disable();
+  //Serial.println("WAKE_UP interupt");
+}
+
+void Going_To_Sleep()
+{
+  Serial.println("good night!"); //next line of code executed after the interrupt
+
+  int save_AR_TIP = sleep_pin(AR_TIP);
+  int save_AR_RING = sleep_pin(AR_RING);
+  int save_PIN_AR_MA = sleep_pin(PIN_AR_MA);
+  int save_PIN_AR_FP = sleep_pin(PIN_AR_FP);
+  int save_PIN_TRAP_ALIM = sleep_pin(PIN_TRAP_ALIM);
+  int save_PIN_RV_OPEN = sleep_pin(PIN_RV_OPEN);
+  int save_PIN_RV_CLOSE = sleep_pin(PIN_RV_CLOSE);
+  int save_PIN_RELAI_3 = sleep_pin(PIN_RELAI_3);
+  int save_PIN_RELAI_4 = sleep_pin(PIN_RELAI_4);
+
+  digitalWrite(PIN_ALIM_SW, HIGH); //desactivation de l'allimentation auxiliaire
+  delay(20);
+  sleep_enable();                      //Enabling sleep mode
+  attachInterrupt(0, WAKE_UP, LOW);    //attaching a interrupt to pin d2
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Setting the sleep mode, in our case full sleep
+  sleep_cpu();                         //activating sleep mode
+  Serial.println("Woke Up!");          //next line of code executed after the interrupt
+
+  //delay(1000);
+  // digitalWrite(LED_BUILTIN, HIGH);     //turning LED on
+  //sleep_disable();
+
+  wakeup_pin(AR_TIP, save_AR_TIP);
+  wakeup_pin(AR_RING, save_AR_RING);
+  wakeup_pin(PIN_AR_MA, save_PIN_AR_MA);
+  wakeup_pin(PIN_AR_FP, save_PIN_AR_FP);
+  wakeup_pin(PIN_TRAP_ALIM, save_PIN_TRAP_ALIM);
+  wakeup_pin(PIN_RV_OPEN, save_PIN_RV_OPEN);
+  wakeup_pin(PIN_RV_CLOSE, save_PIN_RV_CLOSE);
+  wakeup_pin(PIN_RELAI_3, save_PIN_RELAI_3);
+  wakeup_pin(PIN_RELAI_4, save_PIN_RELAI_4);
+
+  digitalWrite(PIN_ALIM_SW, LOW);                                                 //activation de l'allimentation auxiliaire
+  attachInterrupt(digitalPinToInterrupt(PIN_CAN_INTERUPT), MCP2515_ISR, FALLING); // interrupt 0 (pin 2)
 }
 
 class CAN_ESPACE : public CLI_Command
@@ -59,8 +122,6 @@ public:
                                                           PSTR("CAN Bus"),
                                                           PSTR("Usage:\t\tcan <commande>\n"
                                                                "Where:\t<commande>\t debug, get"))
-  // CAN_ESPACE() : can(PIN_SPI_CS_CAN)
-
   {
     _debug = false;
     init = false;
@@ -96,7 +157,7 @@ public:
       delay(100);
     }
 
-    attachInterrupt(0, MCP2515_ISR, FALLING); // interrupt 0 (pin 2)
+    attachInterrupt(digitalPinToInterrupt(PIN_CAN_INTERUPT), MCP2515_ISR, FALLING); // interrupt 0 (pin 2)
   }
 
   // address 766
@@ -107,7 +168,6 @@ public:
 
   void loop()
   {
-
     if (!init)
       this->setup(); //todo
 
@@ -315,26 +375,30 @@ CLI CLI(Serial, CLI_banner); // Initialize CLI, telling it to attach to Serial
 CAV commande(CLI);
 AutoRadio ar(CLI);
 Retroviseur retro(CLI);
-Resistance resistance(CLI);
+//Resistance resistance(CLI);
 Trape trape(CLI);
 CAN_ESPACE canbus(CLI);
 
 Help_Command Help(CLI); // Initialize/Register (built-in) help command
 
+NeoTimer sleep_timer = NeoTimer(10000);
+
 void setup()
 {
   // put your setup code here, to run once:
   pinMode(PIN_SPI_CS_CAN, OUTPUT); // set pin to output
-  pinMode(PIN_SPI_CS_DP, OUTPUT);  // set pin to output
   digitalWrite(PIN_SPI_CS_CAN, HIGH);
+  pinMode(PIN_SPI_CS_DP, OUTPUT); // set pin to output
   digitalWrite(PIN_SPI_CS_DP, HIGH);
+  pinMode(PIN_ALIM_SW, OUTPUT);   // set pin to output
+  digitalWrite(PIN_ALIM_SW, LOW); //start alim
 
   Serial.begin(115200);
-  SPI.begin();        //initialize SPI:
-  commande.setup();   //initialise la commande au volant
-  ar.setup();         //initialise l autoradio (pot + relais)
-  retro.setup();      //initialisation des retroviseurs
-  resistance.setup(); //initialisation des resistance chauffante
+  SPI.begin();      //initialize SPI:
+  commande.setup(); //initialise la commande au volant
+  ar.setup();       //initialise l autoradio (pot + relais)
+  retro.setup();    //initialisation des retroviseurs
+  //resistance.setup(); //initialisation des resistance chauffante
   canbus.setup();
   trape.setup();
 
@@ -346,6 +410,14 @@ void setup()
 
 void loop()
 {
+  if (Flag_Recv == 1)
+  {
+    sleep_timer.restart();
+  }
+  if (sleep_timer.front())
+  {
+    Going_To_Sleep();
+  }
   // Serial.println(F("New Loop"));
   // put your main code here, to run repeatedly:
   commande.loop();
