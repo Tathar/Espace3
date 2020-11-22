@@ -6,6 +6,7 @@ NeoTimer::NeoTimer(unsigned long _t = 1000) //Default 1 second interval if not s
     this->_timer.time = _t;
     this->_timer.started = false;
     this->_timer.start = 0;
+    this->_timer.done = false;
 }
 
 //Default destructor
@@ -121,7 +122,7 @@ boolean NeoTimer::done()
         {
             if (time >= this->_timer.time + this->_timer.start)
             {
-                this->_timer.done = true;
+                // this->_timer.done = true;
 
                 // Serial.println(F("NeoTimer::done true 1"));
                 return true;
@@ -131,7 +132,7 @@ boolean NeoTimer::done()
         {
             if (time >= this->_timer.time - (0xFFFFFFFF - this->_timer.start))
             {
-                this->_timer.done = true;
+                // this->_timer.done = true;
 
                 // Serial.println(F("NeoTimer::done true 2"));
                 return true;
@@ -143,7 +144,7 @@ boolean NeoTimer::done()
     {
         if (time >= this->_timer.time + this->_timer.start)
         {
-            this->_timer.done = true;
+            // this->_timer.done = true;
 
             // Serial.println(F("NeoTimer::done true 3"));
             return true;
@@ -159,6 +160,7 @@ boolean NeoTimer::front()
     if (!this->_timer.done && done())
     {
         // Serial.println(F("NeoTimer::front true"));
+        this->_timer.done = true;
         return true;
     }
     // Serial.println(F("NeoTimer::front false"));

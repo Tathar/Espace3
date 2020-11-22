@@ -102,11 +102,11 @@ void AutoRadio::set_MA(bool value)
 {
     if (value)
     {
-        digitalWrite(PIN_AR_MA, LOW);
+        digitalWrite(PIN_AR_MA, HIGH);
     }
     else
     {
-        digitalWrite(PIN_AR_MA, HIGH);
+        digitalWrite(PIN_AR_MA, LOW);
     }
 }
 
@@ -219,6 +219,18 @@ void AutoRadio::set_pot(int val)
     // SPI.transfer(val);
     SPI.transfer(BOTH_POT_SEL);
     SPI.transfer(val);
+    // Set the CS pin high to execute the command:
+    digitalWrite(PIN_SPI_CS_DP, HIGH);
+}
+
+void AutoRadio::pot_sleep()
+{
+    // set the CS pin to low to select the chip:
+    digitalWrite(PIN_SPI_CS_DP, LOW);
+    // send the command and value via SPI:
+    // SPI.transfer(POT1_SEL);
+    // SPI.transfer(val);
+    SPI.transfer(BOTH_POT_SHUTDOWN);
     // Set the CS pin high to execute the command:
     digitalWrite(PIN_SPI_CS_DP, HIGH);
 }

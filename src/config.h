@@ -88,7 +88,7 @@
 #define AR_NEED_RING 256
 
 #define NONE 0
-#define AR_SOURCE 3
+#define AR_SOURCE 3 //a desactiver
 #define AR_MUTE 9
 #define AR_DISPLAY 14
 #define AR_NEXT 20
@@ -110,20 +110,20 @@
 // pin 32: relais frein de parking
 // pin 34: relais marche arriere
 
-#define PIN_AR_MA PIN_PCB_RELAY_2 //logique inversé
-#define PIN_AR_FP PIN_PCB_RELAY_3 //logique inversé
+#define PIN_AR_MA PIN_PCB_RELAY_2
+#define PIN_AR_FP PIN_PCB_RELAY_3
 
 //retroviseur
 #define PIN_RV_OPEN PIN_RELAY_1
 #define PIN_RV_CLOSE PIN_RELAY_2
-#define PIN_AMPEREMETRE A15
-#define AMPEREMETRE_I_MAX A15
-#define RETRO_I_STOP 1
+#define PIN_AMPEREMETRE A0
+#define AMPEREMETRE_I_MIN -5
+#define AMPEREMETRE_I_MAX 5
+#define RETRO_I_STOP 0.05
+#define RV_TIME 3000 //temp d ouverture et fermeture du retroviseur en ms
 
 #define PIN_RELAI_3 PIN_RELAY_3 //inutilisé
 #define PIN_RELAI_4 PIN_RELAY_4 //inutilisé
-
-#define RV_TIME 3000 //temp d ouverture et fermeture du retroviseur en ms
 
 //Trape autoradio
 // pin 3 (PWM)
@@ -145,9 +145,9 @@
 // pin 40 : relais
 // pin 42 : relais
 
-//#define PIN_RC_O_1 PIN_PCB_RELAY_4  //logique inversé 42
-//#define PIN_RC_O_23 PIN_PCB_RELAY_5 //logique inversé 40
-//#define PIN_RC_O_4 PIN_PCB_RELAY_6  //logique inversé 38
+//#define PIN_RC_O_1 PIN_PCB_RELAY_4
+//#define PIN_RC_O_23 PIN_PCB_RELAY_5
+//#define PIN_RC_O_4 PIN_PCB_RELAY_6
 
 //entree resistance chauffante
 /*

@@ -4,6 +4,8 @@
 #include "config.h"
 #include <CLI.h>
 
+#define MAP_F(x, in_min, in_max, out_min, out_max) (float((x - in_min) * (out_max - out_min)) / float(in_max - in_min) + out_min)
+
 class Retroviseur : CLI_Command
 {
 public:
@@ -13,22 +15,42 @@ public:
                                         PSTR("Usage:\tretro <commande>\n"
                                              "Where:\t<commande>\t open, close"))
     {
+        _timer = NeoTimer(RV_TIME);
         _open = false;
-    };
+    }
 
     void setup()
     {
         pinMode(PIN_RV_CLOSE, OUTPUT); // set pin to output
-        pinMode(PIN_RV_OPEN, OUTPUT);  // set pin to output
-        digitalWrite(PIN_RV_CLOSE, LOW);
         digitalWrite(PIN_RV_OPEN, LOW);
-        // open(); //todo
+        pinMode(PIN_RV_OPEN, OUTPUT); // set pin to output
+        digitalWrite(PIN_RV_CLOSE, LOW);
     }
 
     void loop()
     {
+        static int val_stop = MAP_F(RETRO_I_STOP, AMPEREMETRE_I_MIN, AMPEREMETRE_I_MAX, 0, 1023);
+        // Serial.println(this->_timer.remaining());
         if (this->_timer.front())
+        {
+            Serial.println(F("retro stoped by Timer"));
             stop();
+        }
+
+        if (_timer.waiting() && millis() % 100 == 0)
+        {
+            Serial.print(F("I="));
+            Serial.println((float)MAP_F(val, 0, 1023, -5, 5));
+        }
+
+        int val = analogRead(0);
+        if (_timer.waiting() && ((val >= val_stop) || (val <= -val_stop)))
+        {
+            Serial.println(F("retro stoped by ampermetre "));
+            Serial.println((float)MAP_F(val, 0, 1023, -5, 5));
+            _timer.reset();
+            stop();
+        }
     }
 
     void open()
@@ -37,9 +59,9 @@ public:
         {
             digitalWrite(PIN_RV_CLOSE, LOW);
             digitalWrite(PIN_RV_OPEN, HIGH);
+            _open = true;
             _timer.reset();
             _timer.start(RV_TIME);
-            _open = true;
         }
     }
 
@@ -49,9 +71,9 @@ public:
         {
             digitalWrite(PIN_RV_OPEN, LOW);
             digitalWrite(PIN_RV_CLOSE, HIGH);
+            _open = false;
             _timer.reset();
             _timer.start(RV_TIME);
-            _open = false;
         }
     }
 
@@ -79,6 +101,15 @@ public:
         {
             Serial.println(F("action = close"));
             close();
+        }
+        else if (strcmp(_params, "i") == 0)
+        {
+            int val = analogRead(0);
+            Serial.println((float)MAP_F(val, 0, 1023, -5, 5));
+        }
+        else
+        {
+            Serial.println(F("action inconue"));
         }
 
         // cli.print_P(PSTR("Autoradio "));

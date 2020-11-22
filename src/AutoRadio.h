@@ -21,6 +21,7 @@ public:
     void set_FP(bool value);
 
     void set_MA(bool value);
+    void pot_sleep();
 
     // CLI set parametre
     bool setparams(const char *params);

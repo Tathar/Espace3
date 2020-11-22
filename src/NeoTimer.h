@@ -19,13 +19,13 @@ public:
     boolean repeat(int times, unsigned long _t);
     boolean repeat();
     void repeatReset();
-    boolean waiting();                                     // Indicates timer is started but not finished
-    boolean started();                                     // Indicates timer has started
-    void start(unsigned long times = NEOTIMER_INDEFINITE); //Starts a timer
+    boolean waiting();                                       // Indicates timer is started but not finished
+    boolean started();                                       // Indicates timer has started
+    void start(unsigned long times = NEOTIMER_INDEFINITE);   //Starts a timer
     void restart(unsigned long times = NEOTIMER_INDEFINITE); //Restarts a timer
-    long stop();                                           //Stops a timer and returns elapsed time
-    unsigned long elapsed();                               //returns elapsed time
-    long remaining();                                      //return remaining time
+    long stop();                                             //Stops a timer and returns elapsed time
+    unsigned long elapsed();                                 //returns elapsed time
+    long remaining();                                        //return remaining time
     void resume();
     void reset(); //Resets timer to zero
     void set(unsigned long t);

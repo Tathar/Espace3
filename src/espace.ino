@@ -25,6 +25,14 @@ inline bool sleep_pin(int pin)
   return ret;
 }
 
+inline bool sleep_relais_pin(int pin, int force)
+{
+  int ret = digitalRead(pin);
+  digitalWrite(pin, force);
+  pinMode(pin, INPUT);
+  return ret;
+}
+
 inline void wakeup_pin(int pin, bool old)
 {
   pinMode(pin, OUTPUT);
@@ -48,46 +56,6 @@ static void WAKE_UP()
 {
   sleep_disable();
   //Serial.println("WAKE_UP interupt");
-}
-
-void Going_To_Sleep()
-{
-  Serial.println("good night!"); //next line of code executed after the interrupt
-
-  int save_AR_TIP = sleep_pin(AR_TIP);
-  int save_AR_RING = sleep_pin(AR_RING);
-  int save_PIN_AR_MA = sleep_pin(PIN_AR_MA);
-  int save_PIN_AR_FP = sleep_pin(PIN_AR_FP);
-  int save_PIN_TRAP_ALIM = sleep_pin(PIN_TRAP_ALIM);
-  int save_PIN_RV_OPEN = sleep_pin(PIN_RV_OPEN);
-  int save_PIN_RV_CLOSE = sleep_pin(PIN_RV_CLOSE);
-  int save_PIN_RELAI_3 = sleep_pin(PIN_RELAI_3);
-  int save_PIN_RELAI_4 = sleep_pin(PIN_RELAI_4);
-
-  digitalWrite(PIN_ALIM_SW, HIGH); //desactivation de l'allimentation auxiliaire
-  delay(20);
-  sleep_enable();                      //Enabling sleep mode
-  attachInterrupt(0, WAKE_UP, LOW);    //attaching a interrupt to pin d2
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Setting the sleep mode, in our case full sleep
-  sleep_cpu();                         //activating sleep mode
-  Serial.println("Woke Up!");          //next line of code executed after the interrupt
-
-  //delay(1000);
-  // digitalWrite(LED_BUILTIN, HIGH);     //turning LED on
-  //sleep_disable();
-
-  wakeup_pin(AR_TIP, save_AR_TIP);
-  wakeup_pin(AR_RING, save_AR_RING);
-  wakeup_pin(PIN_AR_MA, save_PIN_AR_MA);
-  wakeup_pin(PIN_AR_FP, save_PIN_AR_FP);
-  wakeup_pin(PIN_TRAP_ALIM, save_PIN_TRAP_ALIM);
-  wakeup_pin(PIN_RV_OPEN, save_PIN_RV_OPEN);
-  wakeup_pin(PIN_RV_CLOSE, save_PIN_RV_CLOSE);
-  wakeup_pin(PIN_RELAI_3, save_PIN_RELAI_3);
-  wakeup_pin(PIN_RELAI_4, save_PIN_RELAI_4);
-
-  digitalWrite(PIN_ALIM_SW, LOW);                                                 //activation de l'allimentation auxiliaire
-  attachInterrupt(digitalPinToInterrupt(PIN_CAN_INTERUPT), MCP2515_ISR, FALLING); // interrupt 0 (pin 2)
 }
 
 class CAN_ESPACE : public CLI_Command
@@ -372,8 +340,9 @@ public:
 const char CLI_banner[] PROGMEM = "ESPACE CLI v1.0 BETA";
 CLI CLI(Serial, CLI_banner); // Initialize CLI, telling it to attach to Serial
 
-CAV commande(CLI);
 AutoRadio ar(CLI);
+
+CAV commande(CLI);
 Retroviseur retro(CLI);
 //Resistance resistance(CLI);
 Trape trape(CLI);
@@ -382,6 +351,51 @@ CAN_ESPACE canbus(CLI);
 Help_Command Help(CLI); // Initialize/Register (built-in) help command
 
 NeoTimer sleep_timer = NeoTimer(10000);
+
+void Going_To_Sleep()
+{
+  Serial.println("good night!"); //next line of code executed after the interrupt
+
+  int save_AR_TIP = sleep_relais_pin(AR_TIP, LOW);
+  int save_AR_RING = sleep_relais_pin(AR_RING, LOW);
+  int save_PIN_AR_MA = sleep_relais_pin(PIN_AR_MA, LOW);
+  int save_PIN_AR_FP = sleep_relais_pin(PIN_AR_FP, LOW);
+  int save_PIN_TRAP_ALIM = sleep_relais_pin(PIN_TRAP_ALIM, LOW);
+  int save_PIN_RV_OPEN = sleep_relais_pin(PIN_RV_OPEN, LOW);
+  int save_PIN_RV_CLOSE = sleep_relais_pin(PIN_RV_CLOSE, LOW);
+  ar.pot_sleep();
+  // int save_PIN_RELAI_3 = sleep_relais_pin(PIN_RELAI_3, LOW);
+  // int save_PIN_RELAI_4 = sleep_relais_pin(PIN_RELAI_4, LOW);
+  // digitalWrite(PIN_RV_OPEN, LOW);
+  // digitalWrite(PIN_RV_CLOSE, LOW);
+  // digitalWrite(PIN_RELAI_3, LOW);
+  // digitalWrite(PIN_RELAI_4, LOW);
+
+  digitalWrite(PIN_ALIM_SW, HIGH); //desactivation de l'allimentation auxiliaire
+  delay(20);
+  sleep_enable();                      //Enabling sleep mode
+  attachInterrupt(0, WAKE_UP, LOW);    //attaching a interrupt to pin d2
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); //Setting the sleep mode, in our case full sleep
+  sleep_cpu();                         //activating sleep mode
+  Serial.println("Woke Up!");          //next line of code executed after the interrupt
+
+  //delay(1000);
+  // digitalWrite(LED_BUILTIN, HIGH);     //turning LED on
+  //sleep_disable();
+
+  wakeup_pin(AR_TIP, save_AR_TIP);
+  wakeup_pin(AR_RING, save_AR_RING);
+  wakeup_pin(PIN_AR_MA, save_PIN_AR_MA);
+  wakeup_pin(PIN_AR_FP, save_PIN_AR_FP);
+  wakeup_pin(PIN_TRAP_ALIM, save_PIN_TRAP_ALIM);
+  wakeup_pin(PIN_RV_OPEN, save_PIN_RV_OPEN);
+  wakeup_pin(PIN_RV_CLOSE, save_PIN_RV_CLOSE);
+  // wakeup_pin(PIN_RELAI_3, save_PIN_RELAI_3);
+  // wakeup_pin(PIN_RELAI_4, save_PIN_RELAI_4);
+
+  digitalWrite(PIN_ALIM_SW, LOW);                                                 //activation de l'allimentation auxiliaire
+  attachInterrupt(digitalPinToInterrupt(PIN_CAN_INTERUPT), MCP2515_ISR, FALLING); // interrupt 0 (pin 2)
+}
 
 void setup()
 {
@@ -402,14 +416,21 @@ void setup()
   canbus.setup();
   trape.setup();
 
+  pinMode(PIN_RELAY_1, OUTPUT); // set pin to output
+  digitalWrite(PIN_RELAY_1, LOW);
+  pinMode(PIN_RELAY_2, OUTPUT); // set pin to output
+  digitalWrite(PIN_RELAY_2, LOW);
   pinMode(PIN_RELAY_3, OUTPUT); // set pin to output
-  pinMode(PIN_RELAY_4, OUTPUT); // set pin to output
   digitalWrite(PIN_RELAY_3, LOW);
+  pinMode(PIN_RELAY_4, OUTPUT); // set pin to output
   digitalWrite(PIN_RELAY_4, LOW);
+  // pinMode(PIN_PCB_RELAY_POT_1, OUTPUT); // set pin to output
+  // digitalWrite(PIN_PCB_RELAY_POT_1, HIGH);
 }
 
 void loop()
 {
+
   if (Flag_Recv == 1)
   {
     sleep_timer.restart();
@@ -418,7 +439,7 @@ void loop()
   {
     Going_To_Sleep();
   }
-  // Serial.println(F("New Loop"));
+  //Serial.println(F("New Loop"));
   // put your main code here, to run repeatedly:
   commande.loop();
   ar.loop();
@@ -435,8 +456,11 @@ void loop()
   // if (commande.get_action() == AR_VOL_DOWN)
   //   trape.open();
 
-  ar.set_FP(!canbus.get_frein_parking());
+  ar.set_FP(canbus.get_frein_parking());
   ar.set_MA(canbus.get_marche_arriere());
+
+  // ar.set_FP(false);
+  // ar.set_MA(false);
 
   //gestion retroviseur
 
